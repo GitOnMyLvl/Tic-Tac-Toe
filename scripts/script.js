@@ -47,24 +47,33 @@ function cell() {
 }
 
 //player factory
-function createPlayer(name, marker) {
-    const getName = () => name;
-    const setName = (newName) => name = newName;
-    const getMarker = () => marker;
-    return {
-        name: name,
-        marker: marker,
-        getName,
-        setName,
-        getMarker,
-    };
-}
+
 
 const gameController = (() => {
     const board = gameBoard;
 
+    const playerType= {
+        HUMAN: 'human',
+        EASY_AI: 'Easy AI',
+        MEDIUM_AI: 'Medium AI',
+        HARD_AI: 'Hard AI',
+    }
+
+    function createPlayer(name, marker, type) {
+        const getName = () => name;
+        const setName = (newName) => name = newName;
+        const getMarker = () => marker;
+        return {
+            name: name,
+            marker: marker,
+            type: type,
+            getName,
+            setName,
+            getMarker,
+        };
+    }
     //creates two players
-    const players = [createPlayer('Player 1', 'X'), createPlayer('Player 2', 'O')];
+    const players = [createPlayer('Player 1', 'X', playerType.HUMAN), createPlayer('Player 2', 'O', playerType.EASY_AI)];
 
     //switches player turn
     let currentPlayer = players[0];
@@ -76,6 +85,19 @@ const gameController = (() => {
         board.printBoard();
         console.log(`New round! ${currentPlayer.getName()} turn.`);
     };
+
+    const generateComputerMove = (difficulty) => {
+        const boardSize = 3;
+        let row;
+        let column;
+
+        if (difficulty === 'Easy AI') {
+            do {
+                row = Math.floor(Math.random() * boardSize);
+                column = Math.floor(Math.random() * boardSize);
+            } while (!isCellEmpty(row, column));
+        }
+    }
 
     //helper function to check if three cells are the same and not empty
     const isSameAndNotEmpty = (cell1, cell2, cell3) =>
@@ -122,7 +144,7 @@ const gameController = (() => {
     //places marker in cell
     //checks if there is a winner and prints massage if there is
     const playRound = (row, column) => {
-        
+
         if (!isValidMove(row, column)) {
             console.log('This cell does not exist, please choose another one.');
             return;
