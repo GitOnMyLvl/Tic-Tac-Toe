@@ -33,10 +33,10 @@ function Cell() {
         value = player;
     };
     const getValue = () => value;
-    return { 
+    return {
         addMarker,
         getValue,
-     };
+    };
 }
 
 function createPlayer(name, marker) {
@@ -65,7 +65,34 @@ const gameController = (() => {
         console.log(`New round! ${currentPlayer.getName()} turn.`);
     };
     const checkWin = () => {
-        
+        for (let i = 0; i < 3; i++) {
+            if (
+                board.getBoard()[i][0].getValue() !== 0 &&
+                board.getBoard()[i][0].getValue() === board.getBoard()[i][1].getValue() &&
+                board.getBoard()[i][1].getValue() === board.getBoard()[i][2].getValue()) {
+                return true;
+            }
+        }
+        for (let j = 0; j < 3; j++) {
+            if (
+                board.getBoard()[0][j].getValue() !== 0 &&
+                board.getBoard()[0][j].getValue() === board.getBoard()[1][j].getValue() &&
+                board.getBoard()[1][j].getValue() === board.getBoard()[2][j].getValue()) {
+                return true;
+            }
+        }
+        if (
+            board.getBoard()[0][0].getValue() !== 0 &&
+            board.getBoard()[0][0].getValue() === board.getBoard()[1][1].getValue() &&
+            board.getBoard()[1][1].getValue() === board.getBoard()[2][2].getValue()) {
+            return true;
+        }
+        if (
+            board.getBoard()[2][0].getValue() !== 0 &&
+            board.getBoard()[2][0].getValue() === board.getBoard()[1][1].getValue() &&
+            board.getBoard()[1][1].getValue() === board.getBoard()[0][2].getValue()) {
+            return true;
+        }
     };
     const playRound = (row, column) => {
         if (board.getBoard()[row][column].getValue() !== 0) {
@@ -73,6 +100,10 @@ const gameController = (() => {
             return;
         }
         board.placeMarker(row, column, currentPlayer.getMarker());
+        if (checkWin()) {
+            console.log(`${currentPlayer.getName()} wins!`);
+            return;
+        }
         switchPlayerTurn();
         printNewRound();
     };
