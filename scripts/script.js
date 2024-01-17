@@ -54,18 +54,7 @@ function cell() {
 }
 
 //player factory
-function createPlayer(name, marker) {
-    const getName = () => name;
-    const setName = (newName) => name = newName;
-    const getMarker = () => marker;
-    return {
-        name: name,
-        marker: marker,
-        getName,
-        setName,
-        getMarker,
-    };
-}
+
 
 const displayController = (() => {
     const boardContainer = document.querySelector('.board-container');
@@ -140,8 +129,28 @@ const gameController = (() => {
 
     const getGameOngoing = () => gameOngoing;
 
+    const playerType= {
+        HUMAN: 'human',
+        EASY_AI: 'Easy AI',
+        MEDIUM_AI: 'Medium AI',
+        HARD_AI: 'Hard AI',
+    }
+
+    function createPlayer(name, marker, type) {
+        const getName = () => name;
+        const setName = (newName) => name = newName;
+        const getMarker = () => marker;
+        return {
+            name: name,
+            marker: marker,
+            type: type,
+            getName,
+            setName,
+            getMarker,
+        };
+    }
     //creates two players
-    const players = [createPlayer('Player 1', 'X'), createPlayer('Player 2', 'O')];
+    const players = [createPlayer('Player 1', 'X', playerType.HUMAN), createPlayer('Player 2', 'O', playerType.EASY_AI)];
 
     //switches player turn
     let currentPlayer = players[0];
@@ -169,6 +178,24 @@ const gameController = (() => {
         currentPlayer = players[0];
         printNewRound();
     };
+
+    const generateComputerMove = (difficulty) => {
+        const boardSize = 3;
+        let row;
+        let column;
+
+        if (difficulty === 'Easy AI') {
+            do {
+                row = Math.floor(Math.random() * boardSize);
+                column = Math.floor(Math.random() * boardSize);
+            } while (!isCellEmpty(row, column));
+            return {row, column};
+        }
+
+        if (difficulty === 'Medium AI') {
+            
+        }
+    }
 
     //helper function to check if three cells are the same and not empty
     const isSameAndNotEmpty = (cell1, cell2, cell3) =>
@@ -257,7 +284,7 @@ const gameController = (() => {
         getOPlayer,
         resetGame,
         playRound,
+        generateComputerMove,
         getCurrentPlayer,
     };
 })();
-
