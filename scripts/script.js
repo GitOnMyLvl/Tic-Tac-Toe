@@ -32,7 +32,6 @@ const gameBoard = (() => {
     //prints board in console
     const printBoard = () => {
         const boardWithMarkers = board.map(row => row.map(cell => cell.getValue()));
-        console.table(boardWithMarkers);
     };
 
     return {
@@ -72,6 +71,71 @@ function createPlayer(name, marker) {
     };
 }
 
+const displayController = (() => {
+    const boardContainer = document.querySelector('.board-container');
+    const resetButton = document.querySelector('.reset-button');
+    const gameInfo = document.querySelector('.game-info');
+    const xNameInput = document.querySelector('.x-name');
+    const oNameInput = document.querySelector('.o-name');
+    const board = gameBoard.getBoard();
+
+    //displays marker in cell
+    const displayMarker = (row, column, cell) => {
+        if (gameController.getGameOngoing()) {
+            if (cell.textContent !== "") {
+                return;
+            }
+            cell.textContent = gameController.getCurrentPlayer().getMarker();
+            gameController.playRound(row, column);
+        }
+    }
+
+    const displayGameInfo = (message) => {
+        gameInfo.textContent = message;
+    }
+
+    xNameInput.addEventListener('change', () => {
+        gameController.changePlayerName(gameController.getXPlayer(), xNameInput.value);
+        displayGameInfo(`${gameController.getCurrentPlayer().getName()}'s turn.`);
+    });
+
+    oNameInput.addEventListener('change', () => {
+        gameController.changePlayerName(gameController.getOPlayer(), oNameInput.value);
+        displayGameInfo(`${gameController.getCurrentPlayer().getName()}'s turn.`);
+    });
+
+    //creates board in html
+    for (let i = 0; i < board.length; i++) {
+        const row = document.createElement('div');
+        row.classList.add('row');
+        for (let j = 0; j < board[i].length; j++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-row', i);
+            cell.setAttribute('data-column', j);
+            cell.addEventListener('click', () => {
+                displayMarker(i, j, cell);
+            });
+            cell.textContent = "";
+            row.appendChild(cell);
+        }
+        boardContainer.appendChild(row);
+    }
+
+    //resets game when reset button is clicked
+    resetButton.addEventListener('click', () => {
+        gameController.resetGame();
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => cell.textContent = "");
+    });
+
+    return {
+        displayGameInfo,
+    };
+
+})();
+
+
 const gameController = (() => {
     const board = gameBoard;
 
@@ -85,13 +149,23 @@ const gameController = (() => {
 
     //switches player turn
     let currentPlayer = players[0];
+
+    const getXPlayer = () => players[0];
+    const getOPlayer = () => players[1];
+
+    const changePlayerName = (player, newName) => {
+        player.setName(newName);
+    }
+
     const switchPlayerTurn = () => {
         currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
     };
+
     const getCurrentPlayer = () => currentPlayer;
+
     const printNewRound = () => {
         board.printBoard();
-        console.log(`New round! ${currentPlayer.getName()} turn.`);
+        displayController.displayGameInfo(`${currentPlayer.getName()}'s turn.`);
     };
 
     const resetGame = () => {
@@ -115,6 +189,7 @@ const gameController = (() => {
             }
         }
     };
+
     const checkColumns = () => {
         for (let j = 0; j < 3; j++) {
             if (isSameAndNotEmpty(board.getBoard()[0][j], board.getBoard()[1][j], board.getBoard()[2][j])) {
@@ -122,6 +197,7 @@ const gameController = (() => {
             }
         }
     };
+
     const checkDiagonals = () => isSameAndNotEmpty(board.getBoard()[0][0], board.getBoard()[1][1], board.getBoard()[2][2]) ||
         isSameAndNotEmpty(board.getBoard()[0][2], board.getBoard()[1][1], board.getBoard()[2][0]);
 
@@ -129,7 +205,6 @@ const gameController = (() => {
     const checkWin = () => {
         return checkRows() || checkColumns() || checkDiagonals();
     };
-
 
     const isValidMove = (row, column) => {
         const boardSize = 3;
@@ -152,27 +227,27 @@ const gameController = (() => {
     //checks if there is a winner and prints massage if there is
     const playRound = (row, column) => {
         if (!gameOngoing) {
-            console.log('The game is over, please start a new one.');
             return;
         }
         if (!isValidMove(row, column)) {
-            console.log('This cell does not exist, please choose another one.');
             return;
         }
         if (!isCellEmpty(row, column)) {
-            console.log('This cell is already taken, please choose another one.');
             return;
         }
+
         makeMove(row, column);
+
         if (checkWin()) {
             board.printBoard();
-            console.log(`${currentPlayer.getName()} wins!`);
+            displayController.displayGameInfo(`${currentPlayer.getName()} wins!`);
             gameOngoing = false;
             return;
         }
+
         if (!hasEmptyCells(board.getBoard())) {
             board.printBoard();
-            console.log('It is a tie!');
+            displayController.displayGameInfo('It is a tie!');
             gameOngoing = false;
             return;
         }
@@ -184,48 +259,12 @@ const gameController = (() => {
     printNewRound();
     return {
         getGameOngoing,
+        changePlayerName,
+        getXPlayer,
+        getOPlayer,
         resetGame,
         playRound,
         getCurrentPlayer,
     };
-})();
-
-const displayController = (() => {
-    const boardContainer = document.querySelector('.board-container');
-    const resetButton = document.querySelector('.reset-button');
-    const board = gameBoard.getBoard();
-
-    const displayMarker = (row, column, cell) => {
-        if (gameController.getGameOngoing()) {
-            if (cell.textContent !== "") {
-                return;
-            }
-            cell.textContent = gameController.getCurrentPlayer().getMarker();
-            gameController.playRound(row, column);
-        }
-    }
-
-    for (let i = 0; i < board.length; i++) {
-        const row = document.createElement('div');
-        row.classList.add('row');
-        for (let j = 0; j < board[i].length; j++) {
-            const cell = document.createElement('div');
-            cell.classList.add('cell');
-            cell.setAttribute('data-row', i);
-            cell.setAttribute('data-column', j);
-            cell.addEventListener('click', () => {
-                displayMarker(i, j, cell);
-            });
-            cell.textContent = "";
-            row.appendChild(cell);
-        }
-        boardContainer.appendChild(row);
-    }
-
-    resetButton.addEventListener('click', () => {
-        gameController.resetGame();
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(cell => cell.textContent = "");
-    });
 })();
 
