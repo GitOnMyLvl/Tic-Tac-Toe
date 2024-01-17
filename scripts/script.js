@@ -96,6 +96,11 @@ const gameController = (() => {
                 row = Math.floor(Math.random() * boardSize);
                 column = Math.floor(Math.random() * boardSize);
             } while (!isCellEmpty(row, column));
+            return {row, column};
+        }
+
+        if (difficulty === 'Medium AI') {
+            
         }
     }
 
@@ -171,6 +176,7 @@ const gameController = (() => {
     printNewRound();
     return {
         playRound,
+        generateComputerMove,
         getCurrentPlayer,
     };
 })();
