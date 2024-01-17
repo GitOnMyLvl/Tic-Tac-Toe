@@ -4,15 +4,25 @@ const gameBoard = (() => {
     const columns = 3;
     let board = [];
     //creates board array with 3x3 cells
-    for (let i = 0; i < rows; i++) {
-        board.push([]);
-        for (let j = 0; j < columns; j++) {
-            board[i].push(cell());
+    const createBoard = () => {
+        for (let i = 0; i < rows; i++) {
+            board.push([]);
+            for (let j = 0; j < columns; j++) {
+                board[i].push(cell());
+            }
         }
-    }
+    };
+
+    createBoard();
 
     //returns board array
     const getBoard = () => board;
+
+    //resets board
+    const resetBoard = () => {
+        board = [];
+        createBoard();
+    };
 
     //places marker in cell
     const placeMarker = (row, column, player) => {
@@ -27,6 +37,7 @@ const gameBoard = (() => {
 
     return {
         getBoard,
+        resetBoard,
         placeMarker,
         printBoard,
     };
@@ -64,6 +75,11 @@ function createPlayer(name, marker) {
 const gameController = (() => {
     const board = gameBoard;
 
+    //gameOngoing is true until there is a winner or a tie
+    let gameOngoing = true;
+
+    const getGameOngoing = () => gameOngoing;
+
     //creates two players
     const players = [createPlayer('Player 1', 'X'), createPlayer('Player 2', 'O')];
 
@@ -76,6 +92,13 @@ const gameController = (() => {
     const printNewRound = () => {
         board.printBoard();
         console.log(`New round! ${currentPlayer.getName()} turn.`);
+    };
+
+    const resetGame = () => {
+        board.resetBoard();
+        gameOngoing = true;
+        currentPlayer = players[0];
+        printNewRound();
     };
 
     //helper function to check if three cells are the same and not empty
@@ -119,11 +142,19 @@ const gameController = (() => {
         return board.some(row => row.some(cell => cell.getValue() === 0));
     };
 
+    const makeMove = (row, column) => {
+        board.placeMarker(row, column, currentPlayer.getMarker());
+    }
+
+
     //checks if cell is empty, if not, asks for another cell
     //places marker in cell
     //checks if there is a winner and prints massage if there is
     const playRound = (row, column) => {
-        
+        if (!gameOngoing) {
+            console.log('The game is over, please start a new one.');
+            return;
+        }
         if (!isValidMove(row, column)) {
             console.log('This cell does not exist, please choose another one.');
             return;
@@ -132,23 +163,28 @@ const gameController = (() => {
             console.log('This cell is already taken, please choose another one.');
             return;
         }
-        board.placeMarker(row, column, currentPlayer.getMarker());
+        makeMove(row, column);
         if (checkWin()) {
             board.printBoard();
             console.log(`${currentPlayer.getName()} wins!`);
+            gameOngoing = false;
             return;
         }
         if (!hasEmptyCells(board.getBoard())) {
             board.printBoard();
             console.log('It is a tie!');
+            gameOngoing = false;
             return;
         }
+
         switchPlayerTurn();
         printNewRound();
     };
 
     printNewRound();
     return {
+        getGameOngoing,
+        resetGame,
         playRound,
         getCurrentPlayer,
     };
@@ -156,7 +192,10 @@ const gameController = (() => {
 
 const displayController = (() => {
     const boardContainer = document.querySelector('.board-container');
+    const resetButton = document.querySelector('.reset-button');
     const board = gameBoard.getBoard();
+
+    
 
     for (let i = 0; i < board.length; i++) {
         const row = document.createElement('div');
@@ -167,12 +206,21 @@ const displayController = (() => {
             cell.setAttribute('data-row', i);
             cell.setAttribute('data-column', j);
             cell.addEventListener('click', () => {
-                gameController.playRound(i, j);
+                if (gameController.getGameOngoing()) {
+                    cell.textContent = gameController.getCurrentPlayer().getMarker();
+                    gameController.playRound(i, j);
+                }
             });
             cell.textContent = "";
             row.appendChild(cell);
         }
         boardContainer.appendChild(row);
     }
+    
+    resetButton.addEventListener('click', () => {
+        gameController.resetGame();
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => cell.textContent = "");
+    });
 })();
 
