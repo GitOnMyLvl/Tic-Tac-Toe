@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe</title>
     <link rel="stylesheet" href="/styles/style.css">
 </head>
+
 <body>
-    <header>
-        <h2>Tic-Tac-Toe</h2>
-        <button class="reset-button">Reset</button>
-    </header>
-    <div class="board-container"></div>
-    
+    <div class="container">
+        <header>
+            <p class="x-info">X: Enter name or chose difficulty</p>
+            <p class="o-info">O: Enter name or chose difficulty</p>
+            <h2>Tic-Tac-Toe</h2>
+            <button class="reset-button">Reset</button>
+            <input class="player-input" list="player" name="myPlayer" /></label>
+            <datalist class="x-player" id="player">
+                <option value="Easy">
+                <option value="Hard">
+            </datalist>
+            <input class="player-input" list="player" name="myPlayer" /></label>
+            <datalist class="o-player" id="player">
+                <option value="Easy">
+                <option value="Hard">
+              </datalist>
+        </header>
+        <div class="board-container"></div>
+    </div>
     <script src="/scripts/script.js"></script>
 </body>
+
 </html>

@@ -195,7 +195,15 @@ const displayController = (() => {
     const resetButton = document.querySelector('.reset-button');
     const board = gameBoard.getBoard();
 
-    
+    const displayMarker = (row, column, cell) => {
+        if (gameController.getGameOngoing()) {
+            if (cell.textContent !== "") {
+                return;
+            }
+            cell.textContent = gameController.getCurrentPlayer().getMarker();
+            gameController.playRound(row, column);
+        }
+    }
 
     for (let i = 0; i < board.length; i++) {
         const row = document.createElement('div');
@@ -206,17 +214,14 @@ const displayController = (() => {
             cell.setAttribute('data-row', i);
             cell.setAttribute('data-column', j);
             cell.addEventListener('click', () => {
-                if (gameController.getGameOngoing()) {
-                    cell.textContent = gameController.getCurrentPlayer().getMarker();
-                    gameController.playRound(i, j);
-                }
+                displayMarker(i, j, cell);
             });
             cell.textContent = "";
             row.appendChild(cell);
         }
         boardContainer.appendChild(row);
     }
-    
+
     resetButton.addEventListener('click', () => {
         gameController.resetGame();
         const cells = document.querySelectorAll('.cell');
