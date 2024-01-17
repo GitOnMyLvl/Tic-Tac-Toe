@@ -29,16 +29,12 @@ const gameBoard = (() => {
         board[row][column].addMarker(player);
     }
 
-    //prints board in console
-    const printBoard = () => {
-        const boardWithMarkers = board.map(row => row.map(cell => cell.getValue()));
-    };
+
 
     return {
         getBoard,
         resetBoard,
         placeMarker,
-        printBoard,
     };
 
 })();
@@ -164,7 +160,6 @@ const gameController = (() => {
     const getCurrentPlayer = () => currentPlayer;
 
     const printNewRound = () => {
-        board.printBoard();
         displayController.displayGameInfo(`${currentPlayer.getName()}'s turn.`);
     };
 
@@ -239,14 +234,12 @@ const gameController = (() => {
         makeMove(row, column);
 
         if (checkWin()) {
-            board.printBoard();
             displayController.displayGameInfo(`${currentPlayer.getName()} wins!`);
             gameOngoing = false;
             return;
         }
 
         if (!hasEmptyCells(board.getBoard())) {
-            board.printBoard();
             displayController.displayGameInfo('It is a tie!');
             gameOngoing = false;
             return;
