@@ -3,6 +3,7 @@ const gameBoard = (() => {
     const rows = 3;
     const columns = 3;
     let board = [];
+    //creates board array with 3x3 cells
     for (let i = 0; i < rows; i++) {
         board.push([]);
         for (let j = 0; j < columns; j++) {
@@ -152,3 +153,26 @@ const gameController = (() => {
         getCurrentPlayer,
     };
 })();
+
+const displayController = (() => {
+    const boardContainer = document.querySelector('.board-container');
+    const board = gameBoard.getBoard();
+
+    for (let i = 0; i < board.length; i++) {
+        const row = document.createElement('div');
+        row.classList.add('row');
+        for (let j = 0; j < board[i].length; j++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-row', i);
+            cell.setAttribute('data-column', j);
+            cell.addEventListener('click', () => {
+                gameController.playRound(i, j);
+            });
+            cell.textContent = "";
+            row.appendChild(cell);
+        }
+        boardContainer.appendChild(row);
+    }
+})();
+
